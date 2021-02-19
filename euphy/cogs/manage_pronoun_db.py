@@ -38,14 +38,6 @@ class PronounDBManagement(commands.Cog):
                 },
             })
 
-        """
-                
-                "author": {
-                    "name": "Euphy2 Pronoun Database",
-                    "icon_url": self.bot.user.avatar_url
-                }
-        """
-
     # search db
     @commands.command(name="search")
     async def search(self, ctx, *, args=""):

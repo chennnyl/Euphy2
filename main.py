@@ -17,6 +17,7 @@ load_dotenv()
 # TODO: help command, comment throughout, search pronoun db (paginated?)
 bot = commands.Bot(command_prefix="e$")
 
+
 @bot.event
 async def on_ready():
     print("Connected to Discord!")
