@@ -15,8 +15,11 @@ load_dotenv()
 
 
 # TODO: help command, comment throughout, search pronoun db (paginated?)
-bot = commands.Bot(command_prefix="e$")
+bot = commands.Bot(command_prefix="e$", help_command=None)
 
+@bot.command(name="help")
+async def help_command(ctx):
+    await ctx.send("That's not ready yet: but you can head to https://lynnux.org and find a WIP tutorial there!")
 
 @bot.event
 async def on_ready():
