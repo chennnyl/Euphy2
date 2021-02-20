@@ -1,13 +1,14 @@
-import sqlite3
+from os import getenv
+import psycopg2
 
 # Context manager for SQLite database
 
-class SQLiteCursor():
+class PostgreCursor():
     def __init__(self, db):
         self.db = db
     def __enter__(self):
-        self.conn = sqlite3.connect(self.db)
-        self.conn.row_factory = sqlite3.Row
+        self.conn = psycopg2.connect(self.db)
+        # self.conn.row_factory = sqlite3.Row
         self.curs = self.conn.cursor()
         return self.curs
     def __exit__(self, type, value, traceback):
@@ -16,22 +17,22 @@ class SQLiteCursor():
         
 # Context manager + modify pronouns db
 
-class PronounDBCursor(SQLiteCursor):
+class PronounDBCursor(PostgreCursor):
     def __init__(self):
-        super().__init__('euphy2.db')
+        super().__init__(getenv("PSYCOPG2_CONNECT_STRING"))
         
     def __enter__(self):
         super().__enter__()
         self.curs.execute(
         '''
         CREATE TABLE IF NOT EXISTS pronouns (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             nom TEXT NOT NULL,
             obj TEXT NOT NULL,
             poss TEXT NOT NULL,
             posspro TEXT NOT NULL,
             ref TEXT NOT NULL,
-            plural INTEGER DEFAULT 0
+            plural BINARY DEFAULT FALSE
         );
         '''
         )
@@ -69,31 +70,31 @@ class PronounDBCursor(SQLiteCursor):
             self.curs.execute(
             '''
             SELECT * FROM pronouns WHERE
-                nom=:p or obj=:p or poss=:p or posspro=:p or ref=:p
+                nom=%(p)s or obj=%(p)s or poss=%(p)s or posspro=%(p)s or ref=%(p)s
             LIMIT 1
             ''', pronoun
             )
-            val = self.curs.fetchone()
-            if val is None:
+            result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), self.curs.fetchone())}
+            if result is None:
                 foundAll = False
                 notFound.append(pronoun["p"])
                 continue
 
-            if val['id'] not in ids:
-                values.append(val)
-                ids.append(val['id'])
+            if result['id'] not in ids:
+                values.append(result)
+                ids.append(result['id'])
         return values, foundAll, notFound
 
 # Context manager + access sentences
-class SentenceDBCursor(SQLiteCursor):
+class SentenceDBCursor(PostgreCursor):
     def __init__(self):
-        super().__init__('euphy2.db')
+        super().__init__(getenv("PSYCOPG2_CONNECT_STRING"))
     def __enter__(self):
         super().__enter__()
         self.curs.execute(
         '''
         CREATE TABLE IF NOT EXISTS sentences (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             sentence TEXT
         );
         '''
@@ -103,11 +104,11 @@ class SentenceDBCursor(SQLiteCursor):
     def get_random_sentence(self):
         self.curs.execute(
         '''
-        SELECT sentence FROM sentences ORDER BY RANDOM() LIMIT 1; 
+        SELECT * FROM sentences ORDER BY RANDOM() LIMIT 1; 
         '''
         )
-        val = self.curs.fetchone()
-        return val
+        result = self.curs.fetchone()
+        return {key:val for key,val in zip(("id","sentence"), result)}
     
     def add_sentences(self, sentences):
 
@@ -120,9 +121,9 @@ class SentenceDBCursor(SQLiteCursor):
 
 # Context manager + modify users db
 
-class UserDBCursor(SQLiteCursor):
+class UserDBCursor(PostgreCursor):
     def __init__(self):
-        super().__init__('euphy2.db')
+        super().__init__(getenv("PSYCOPG2_CONNECT_STRING"))
     
     def __enter__(self):
         super().__enter__()
@@ -150,7 +151,7 @@ class UserDBCursor(SQLiteCursor):
 
         self.curs.execute(
         '''
-        SELECT * FROM users WHERE id=:id
+        SELECT * FROM users WHERE id=%(id)s
         ''', {"id": id}
         )
         try:
@@ -175,9 +176,9 @@ class UserDBCursor(SQLiteCursor):
     def get_row(self, id):
         self.curs.execute(
         '''
-        SELECT * from users WHERE id=:id
+        SELECT * from users WHERE id=%(id)s
         ''', {"id": id}
         )
         row = self.curs.fetchone()
-        return row
+        return {key: val for key,val in zip(("id", "names", "pronouns"), row)}
     

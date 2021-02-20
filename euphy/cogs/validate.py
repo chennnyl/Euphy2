@@ -56,7 +56,7 @@ class TryPronouns(commands.Cog):
                 await ctx.send(f"I don't have support for some of those pronouns! I couldn't find: `{', '.join(notFound)}`. Contribute to my pronoun database with `e$contribute`!")
                 return 
         with SentenceDBCursor() as sentencedb:
-            randomsentence = sentencedb.get_random_sentence()[0]
+            randomsentence = sentencedb.get_random_sentence()["sentence"]
         
         sentence = Sentence(randomsentence).process_all(pronouns, userinfo["names"])
 
