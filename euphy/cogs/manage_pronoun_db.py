@@ -70,7 +70,7 @@ class PronounDBManagement(commands.Cog):
             if info[-1].strip().upper() not in ["TRUE","FALSE"]:
                 await ctx.send("I don't understand that last bit -- needs to be `true` or `false`!")
                 return
-            info[-1] = 1 if info[-1].strip().upper() == "TRUE" else 0
+            info[-1] = True if info[-1].strip().upper() == "TRUE" else False
             if len(info) != 6:
                 await ctx.send("Invalid number of arguments! You must specify all pronouns at once!")
             else:
@@ -98,7 +98,7 @@ class PronounDBManagement(commands.Cog):
                     if message.content.strip().upper() not in ["TRUE","FALSE"]:
                         await message.channel.send("Bad input! Try again.")
                     else:
-                        self.dialogue_users[message.author.id].append(1 if message.content.strip().upper() == "TRUE" else 0)
+                        self.dialogue_users[message.author.id].append(True if message.content.strip().upper() == "TRUE" else False)
                 progress = self.dialogue_users[message.author.id]
                 if len(progress) < 5:
                     await originalMessage.edit(content="**Reply to this message** with the pronoun corresponding to the following description:",embed=self.create_progress_embed(len(progress)))
@@ -107,7 +107,7 @@ class PronounDBManagement(commands.Cog):
                 elif len(progress) == 6 or self.confirming.get(message.author.id, False):
                     with PronounDBCursor() as pronoundb:
                         exists, _, _ = pronoundb.get_pronouns(*self.dialogue_users[message.author.id][:-1])
-                        if exists:
+                        if any(exists):
                             await message.channel.send(f"You've duplicated some or all of a preexisting pronoun set! Conflicts with `{'/'.join([exists[0][key] for key in exists[0]][1:-1])}`")
                         else:
                             if pronoundb.add_pronouns(*self.dialogue_users[message.author.id]):
