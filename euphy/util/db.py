@@ -49,11 +49,11 @@ class PronounDBCursor(PostgreCursor):
                 posspro,
                 ref,
                 plural
-            ) values ( ?, ?, ?, ?, ?, ? )
+            ) values ( %s, %s, %s, %s, %s, %s )
             ''', values
             )
-        finally:
-            pass
+        except:
+            return False
         return True
     
     def get_pronouns(self, *pronouns):
@@ -114,7 +114,7 @@ class SentenceDBCursor(PostgreCursor):
 
         self.curs.executemany(
         '''
-        INSERT INTO sentences(sentence) VALUES(?)
+        INSERT INTO sentences(sentence) VALUES(%s)
         ''', sentences
         )
         
@@ -158,13 +158,13 @@ class UserDBCursor(PostgreCursor):
             if self.curs.fetchone(): # update
                 self.curs.execute(
                 f'''
-                UPDATE users SET {field}=? WHERE id=?
+                UPDATE users SET {field}=%s WHERE id=%s
                 ''', (paramlist, id)
                 )
             else: # insert
                 self.curs.execute(
                 f'''
-                INSERT INTO users(id,{field}) VALUES(?, ?)
+                INSERT INTO users(id,{field}) VALUES(%s, %s)
                 ''', (id, paramlist)
                 )
         except:

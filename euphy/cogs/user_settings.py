@@ -49,9 +49,6 @@ class ModifyNamesPronouns(commands.Cog):
         with UserDBCursor() as userdb:
             if names == "":
                 unames = userdb.get_row(ctx.author.id)
-
-                print(unames)
-
                 if unames is None or unames["names"] is None:
                     await ctx.send("You don't have any names set! Use `e$names` to fix that!")
                     return
@@ -68,7 +65,7 @@ class ModifyNamesPronouns(commands.Cog):
                 
                 await ctx.send(send + ". Use `e$names` to modify them!")
             else:
-
+                
                 if userdb.set_field(ctx.author.id, names, "names"):
                     await ctx.send("Got it! Your names have been updated.")
                 else:
