@@ -74,7 +74,10 @@ class PronounDBCursor(PostgreCursor):
             LIMIT 1
             ''', pronoun
             )
-            result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), self.curs.fetchone())}
+            try:
+                result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), self.curs.fetchone())}
+            except:
+                result = None
             if result is None:
                 foundAll = False
                 notFound.append(pronoun["p"])

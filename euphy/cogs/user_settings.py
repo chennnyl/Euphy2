@@ -95,6 +95,6 @@ class ModifyNamesPronouns(commands.Cog):
                     else:
                         await ctx.send("Something went wrong; I couldn't update your pronouns.")
                 else:
-                    await ctx.send("We don't have all of your pronouns... fix yet to come")
+                    await ctx.send(f"I don't have all of your pronouns ({', '.join('`' + pro + '`' for pro in notFound)})! Use `e$contribute` to add them!")
 
             
