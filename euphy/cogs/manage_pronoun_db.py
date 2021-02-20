@@ -1,4 +1,5 @@
-from ..util.db import *
+from euphy.util.db import *
+from euphy.cogs.user_settings import SlashList 
 
 import discord
 import discord.ext.commands as commands
@@ -40,11 +41,30 @@ class PronounDBManagement(commands.Cog):
 
     # search db
     @commands.command(name="search")
-    async def search(self, ctx, *, args=""):
+    async def search(self, ctx, *, args: SlashList=""):
         if args == "":
             await ctx.send("You need to tell me what to search for!")
         else:
-            await ctx.send("Sorry, that's not ready yet.")
+            with PronounDBCursor() as pronoundb:
+                pronouns, _, _ = pronoundb.get_pronouns(*args, as_tuple=True)
+            if not pronouns:
+                await ctx.send("I couldn't find any of those pronouns! Make sure you spelled them correctly, or add some more with `e$contribute!`")
+                return
+
+            embed = discord.Embed.from_dict({
+                "title": f"Pronouns matching `{'/'.join(args)}`",
+                "description": "\n".join(f'`{str(i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronouns)),
+                "footer": {
+                    "icon_url": str(ctx.author.avatar_url),
+                    "text": f"Searched by {ctx.author.name}#{ctx.author.discriminator}"
+                },
+                "author": {
+                    "name": "Euphy2",
+                    "url": "https://www.lynnux.org/post/euphy2",
+                    "icon_url": str(self.bot.user.avatar_url)
+                }
+            })
+            await ctx.send(embed=embed)
 
     # add pronouns to the databse
     @commands.command(name="contribute")

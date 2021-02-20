@@ -56,7 +56,9 @@ class PronounDBCursor(PostgreCursor):
             return False
         return True
     
-    def get_pronouns(self, *pronouns):
+    def get_pronouns(self, *pronouns,**kwargs):
+
+        as_tuple = kwargs.get("as_tuple", False)
 
         pronouns = [{"p": pronoun} for pronoun in pronouns]
 
@@ -75,17 +77,26 @@ class PronounDBCursor(PostgreCursor):
             ''', pronoun
             )
             try:
-                result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), self.curs.fetchone())}
+                result = self.curs.fetchone()
+
+                if not as_tuple:
+                    result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), result)}
+                else:
+                    assert bool(result)
             except:
                 result = None
             if result is None:
                 foundAll = False
                 notFound.append(pronoun["p"])
                 continue
-
-            if result['id'] not in ids:
-                values.append(result)
-                ids.append(result['id'])
+            if not as_tuple:
+                if result['id'] not in ids:
+                    values.append(result)
+                    ids.append(result['id'])
+            else:
+                if result[0] not in ids:
+                    values.append(result)
+                    ids.append(result[0])
         return values, foundAll, notFound
 
 # Context manager + access sentences
