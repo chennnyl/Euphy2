@@ -1,3 +1,5 @@
+# automatically implements reaction-based message pagination
+
 import asyncio
 
 async def paginate(content, ctx, timeout=120, deleteMessage="This message was deleted to conserve bot resources."):
@@ -11,10 +13,12 @@ async def paginate(content, ctx, timeout=120, deleteMessage="This message was de
     if len(content) > 1:
         await msg.add_reaction(right_arrow)
 
+    # only want reactions to paginated message by requester to trigger page changes
     check = lambda reaction, user: reaction.message.id == msg.id and user.id == ctx.author.id
 
     while True:
         try:
+            # cancel after `timeout` seconds of inactivity
             reaction, _ = await ctx.bot.wait_for('reaction_add',timeout=timeout,check=check)
 
             if reaction.emoji == right_arrow and index < len(content)-1:
@@ -33,6 +37,7 @@ async def paginate(content, ctx, timeout=120, deleteMessage="This message was de
                     await msg.add_reaction(left_arrow)
                 await msg.add_reaction(right_arrow)
 
+        # delete message after `timeout` seconds
         except asyncio.TimeoutError:
             try:
                 await msg.edit(content=deleteMessage)

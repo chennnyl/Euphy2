@@ -1,7 +1,7 @@
 from os import getenv
 import psycopg2
 
-# Context manager for SQLite database
+# Context manager for PostgreSQL database
 
 class PostgreCursor():
     def __init__(self, db):
@@ -38,6 +38,7 @@ class PronounDBCursor(PostgreCursor):
         )
         return self
 
+    # add pronouns to db
     def add_pronouns(self, *values):
         try:
             self.curs.execute(
@@ -56,6 +57,7 @@ class PronounDBCursor(PostgreCursor):
             return False
         return True
 
+    # get a list of all pronoun sets
     def get_all_pronouns(self, **kwargs):
         as_tuple = kwargs.get("as_tuple", False)
 
@@ -72,6 +74,7 @@ class PronounDBCursor(PostgreCursor):
         except:
             return False
     
+    # get a list of certain pronoun sets (will return all found along with a flag if doesn't find every pronoun requested)
     def get_pronouns(self, *pronouns,**kwargs):
 
         as_tuple = kwargs.get("as_tuple", False)

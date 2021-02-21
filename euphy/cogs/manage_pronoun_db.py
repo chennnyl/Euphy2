@@ -15,6 +15,8 @@ class PronounDBManagement(commands.Cog):
         self.dialogue_users = dict()
         self.confirming = dict()
 
+    
+    # used for flow of e$contribute -- could clean up, but works fine as is?
     def create_progress_embed(self, index):
 
         titles = [
@@ -43,6 +45,7 @@ class PronounDBManagement(commands.Cog):
                 },
             })
 
+    # list all pronoun sets in db
     @commands.command(name="list")
     async def list_all(self, ctx):
 
@@ -72,7 +75,7 @@ class PronounDBManagement(commands.Cog):
 
         await paginate(pages, ctx, deleteMessage="This message was deleted to preserve bot resources. Run `e$search` again for more!")
 
-    # search db
+    # search db; exact matches only (no substring matching (yet (hopefully)))
     @commands.command(name="search")
     async def search(self, ctx, *, args: SlashList=""):
         if args == "":
@@ -123,7 +126,7 @@ class PronounDBManagement(commands.Cog):
                 embed=self.create_progress_embed(0)
             )
 
-        # insert in one (two) message
+        # insert in one message + confirmation
         else:
 
             info = args.split(" ")
@@ -146,14 +149,19 @@ class PronounDBManagement(commands.Cog):
         if message.reference:
             originalMessage = await message.channel.fetch_message(message.reference.message_id)
              
+             # check that we are in fact replying to the bot and in a dialogue tree
             if message.author.id in self.dialogue_users and originalMessage.author.id == self.bot.user.id:
 
+                # cancel pronoun insertion
                 if message.content.strip().upper() == "STOP":
                     self.dialogue_users.pop(message.author.id, None)
                     await message.add_reaction("\N{THUMBS UP SIGN}")
 
+                # nom/obj/poss/posspro/refl
                 if len(self.dialogue_users[message.author.id]) < 5:
                     self.dialogue_users[message.author.id].append(message.content)
+
+                # plural?
                 elif not self.confirming.get(message.author.id, False):
                     if message.content.strip().upper() not in ["TRUE","FALSE"]:
                         await message.channel.send("Bad input! Try again.")
@@ -164,6 +172,8 @@ class PronounDBManagement(commands.Cog):
                     await originalMessage.edit(content="**Reply to this message** with the pronoun corresponding to the following description:",embed=self.create_progress_embed(len(progress)))
                 elif len(progress) == 5:
                     await originalMessage.edit(content="Last but not least! Simply reply with **true** or **false** based on the following description:",embed=self.create_progress_embed(len(progress)))
+                
+                # last message OR confirming one-line insertion
                 elif len(progress) == 6 or self.confirming.get(message.author.id, False):
                     with PronounDBCursor() as pronoundb:
                         exists, _, _ = pronoundb.get_pronouns(*self.dialogue_users[message.author.id][:-1])

@@ -2,8 +2,6 @@ from euphy.cogs.manage_pronoun_db import PronounDBManagement
 from euphy.cogs.user_settings import ModifyNamesPronouns
 from euphy.cogs.validate import TryPronouns
 
-
-
 import discord
 import discord.ext.commands as commands
 
@@ -12,9 +10,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# testing github webhook .. again
 
-# TODO: help command, comment throughout, search pronoun db (paginated?)
+# TODO: help command, comment throughout
 bot = commands.Bot(command_prefix="e$", help_command=None)
 
 @bot.command(name="help")

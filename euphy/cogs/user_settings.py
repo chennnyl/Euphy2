@@ -5,7 +5,6 @@ import discord.ext.commands as commands
 import re
 
 # Pass comma- or slash-delineated list straight to command
-
 class SlashList(commands.Converter):
     async def convert(self, ctx, argument):
         return re.sub(R"/\s*", "/", argument).split("/")
@@ -14,12 +13,13 @@ class CommaList(commands.Converter):
     async def convert(self, ctx, argument):
         return re.sub(R",\s*", ",", argument).split(",")
 
+
+
 class ModifyNamesPronouns(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Command for removing stored info
-
+    # command for removing stored info
     @commands.command(name="delete")
     async def delete_command(self, ctx, field=""):
         if field == "":
@@ -42,11 +42,11 @@ class ModifyNamesPronouns(commands.Cog):
         
 
     
-    # Set your names in the DB
-
+    # set your names in the db
     @commands.command(name="names")
     async def names(self, ctx, *, names: CommaList=""):
         with UserDBCursor() as userdb:
+            # check what's stored already
             if names == "":
                 unames = userdb.get_row(ctx.author.id)
                 if unames is None or unames["names"] is None:
@@ -64,6 +64,7 @@ class ModifyNamesPronouns(commands.Cog):
                     send = "Your name is set to " + unames[0]
                 
                 await ctx.send(send + ". Use `e$names` to modify them!")
+            # modify names
             else:
                 
                 if userdb.set_field(ctx.author.id, names, "names"):
@@ -71,9 +72,11 @@ class ModifyNamesPronouns(commands.Cog):
                 else:
                     await ctx.send("Something went wrong; I couldn't update your names.")
     
+    # modify stored pronouns
     @commands.command(name="pronouns")
     async def pronouns(self, ctx, *, pronouns: SlashList = ""):
         with UserDBCursor() as userdb:
+            # check what's stored already
             if pronouns == "":
                 upronouns = userdb.get_row(ctx.author.id)
                 if upronouns is None or upronouns["pronouns"] is None:
@@ -83,8 +86,9 @@ class ModifyNamesPronouns(commands.Cog):
                     send = "Your pronouns are set to " + "/".join(upronouns['pronouns'].split(";"))
                 
                 await ctx.send(send + ". Use `e$pronouns` to modify them!")
-
+            # modify pronouns
             else:
+                # can only store pronouns already in db
                 with PronounDBCursor() as pronoundb:
                     _, allPronounsFound, notFound = pronoundb.get_pronouns(*pronouns)
 

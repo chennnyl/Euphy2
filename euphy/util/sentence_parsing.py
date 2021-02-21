@@ -1,11 +1,13 @@
 import re
 import random
 
+# sentence for processing <> tags in sentences
 class Sentence:
 
     tag_parser = re.compile(R"<(?P<contents>(?:name|nom|obj|poss|posspro|refl)|(?:verb: (?P<verb>[^>]+)))>")
     cap_parser = re.compile(R"([?!.][ \t\"\']{1,})")
 
+    # will expand as needed
     irregular_verbs = {
         "be" : [
             "is",
@@ -25,7 +27,16 @@ class Sentence:
     def __init__(self, template_string): 
         self.raw = template_string
         self.processed = template_string
+
+        # Tag explanation:
+        # replaced: tags that are done and have been processed
+        # types: holds what type of tag each is (nom, obj, name, etc.)
+        # verbs: holds either verbs from <verb: > tags or None
+        # sets: holds either pronoun set dicts or None (for verb tags)
+        # raw: holds raw tags to be replaced
         self.tags = {"replaced":[], "types":[], "verbs": [], "sets":[], "raw": []}
+    
+    # scan sentence for tags and parse out key components
     def find_tags(self):
         tag_iter = Sentence.tag_parser.finditer(self.raw)
         for tag in tag_iter: # get a sequence of the tag types in order
@@ -33,7 +44,8 @@ class Sentence:
             self.tags["raw"].append(f"<{tag.groupdict().get('contents',None)}>")
             self.tags["verbs"].append(tag.groupdict().get("verb",None))
 
-    def process_tags(self, pronoun_sets, names): # pronoun_sets should be a list of Row objects or dict-likes
+    # pick sets and align verbs with them grammatically
+    def process_tags(self, pronoun_sets, names): # pronoun_sets should be a list of pronoun dicts or dict-likes
         for i, tag in enumerate(self.tags["types"]):
             if tag == "name":
                 self.tags["replaced"].append(random.choice(names))
@@ -54,24 +66,16 @@ class Sentence:
 
                 self.tags["sets"].append(current_set)
 
+    # insert tag information into sentence and remove raw tags
     def replace_tags(self):
         for i,rawtag in enumerate(self.tags["raw"]):
             self.processed = self.processed.replace(rawtag, self.tags["replaced"][i], 1)
         self.processed = "".join([sentence[0].upper() + sentence[1:] for sentence in Sentence.cap_parser.split(self.processed)])
 
+    # run all three methods and return final, processed sentences
     def process_all(self, pronoun_sets, names):
         self.find_tags()
         self.process_tags(pronoun_sets, names)
         self.replace_tags()
 
         return self.processed
-        
-
-
-if __name__ == "__main__":
-    testSentence = Sentence("<name> is really cool! <nom> <verb: be> fun and funky and we love <obj> very much! Another sentence. Yet another.")
-
-    print(testSentence.process_all([{"nom":"they","obj":"them","plural":1},{"nom":"she","obj":"her","plural":0}], ["name1", "name2"]))
-    
-        
-         

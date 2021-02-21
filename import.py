@@ -1,3 +1,5 @@
+# this file assists in automatically importing many sentences into the databse at once 
+
 from euphy.util.db import SentenceDBCursor
 
 with open("sentences.txt") as sfile:

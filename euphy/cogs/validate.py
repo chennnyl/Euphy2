@@ -1,5 +1,5 @@
-# what are we validating?
-# YOU.
+# implements e$try, allowing users to try new names and pronouns
+# you know, the whole conceit of the bot
 
 from euphy.util.db import *
 from euphy.util.sentence_parsing import Sentence
@@ -58,6 +58,7 @@ class TryPronouns(commands.Cog):
         with SentenceDBCursor() as sentencedb:
             randomsentence = sentencedb.get_random_sentence()["sentence"]
         
+        # pass pronouns and names to sentence handler to interweave
         sentence = Sentence(randomsentence).process_all(pronouns, userinfo["names"])
 
         await ctx.send(sentence)
