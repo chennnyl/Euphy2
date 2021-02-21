@@ -49,10 +49,12 @@ class PronounDBManagement(commands.Cog):
         with PronounDBCursor() as pronoundb:
             pronouns = pronoundb.get_all_pronouns(as_tuple=True)
 
+        page_limit = 10
+
         def generate_pronoun_embed(pronoun_list, index=1, pages=1):
                 return discord.Embed.from_dict({
                     "title": "All pronouns in database",
-                    "description": "\n".join(f'`{str(i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
+                    "description": "\n".join(f'`{str(page_limit*index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
                     "footer": {
                         "icon_url": str(ctx.author.avatar_url),
                         "text": f"Page {1+index}/{pages} | {len(pronouns)} results | Searched by {ctx.author.name}#{ctx.author.discriminator}"
@@ -64,7 +66,7 @@ class PronounDBManagement(commands.Cog):
                     }
                 })
 
-        page_limit = 10
+        
         
         pages = [{"content":"", "embed":generate_pronoun_embed(pronoun_list=pronouns[i:i+page_limit], index=n, pages=ceil(len(pronouns)/page_limit))} for n,i in enumerate(range(0, len(pronouns), page_limit))]
 
@@ -82,10 +84,12 @@ class PronounDBManagement(commands.Cog):
                 await ctx.send("I couldn't find any of those pronouns! Make sure you spelled them correctly, or add some more with `e$contribute!`")
                 return
 
+            page_limit = 10
+
             def generate_pronoun_embed(pronoun_list, index=1, pages=1):
                 return discord.Embed.from_dict({
                     "title": f"Pronouns matching `{'/'.join(args)}`",
-                    "description": "\n".join(f'`{str(i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
+                    "description": "\n".join(f'`{str(page_limit * index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
                     "footer": {
                         "icon_url": str(ctx.author.avatar_url),
                         "text": f"Page {1+index}/{pages} | {len(pronouns)} results | Searched by {ctx.author.name}#{ctx.author.discriminator}"
@@ -97,7 +101,7 @@ class PronounDBManagement(commands.Cog):
                     }
                 })
 
-            page_limit = 10
+            
             pages = [{"content":"", "embed":generate_pronoun_embed(pronoun_list=pronouns[i:i+page_limit], index=n, pages=ceil(len(pronouns)/page_limit))} for n,i in enumerate(range(0, len(pronouns), page_limit))]
 
             await paginate(pages, ctx, deleteMessage="This message was deleted to preserve bot resources. Run `e$search` again for more!")
