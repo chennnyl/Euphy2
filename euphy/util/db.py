@@ -8,7 +8,6 @@ class PostgreCursor():
         self.db = db
     def __enter__(self):
         self.conn = psycopg2.connect(self.db)
-        # self.conn.row_factory = sqlite3.Row
         self.curs = self.conn.cursor()
         return self.curs
     def __exit__(self, type, value, traceback):

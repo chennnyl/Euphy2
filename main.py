@@ -21,7 +21,7 @@ async def help_command(ctx):
 @bot.event
 async def on_ready():
     print("Connected to Discord!")
-    await bot.change_presence(activity=discord.Game("e$ - Euphy 2 (0.1.0)"), status=discord.Status.online)
+    await bot.change_presence(activity=discord.Game("e$ - Euphy 2 (1.0.0)"), status=discord.Status.online)
 
 bot.add_cog(PronounDBManagement(bot))
 bot.add_cog(ModifyNamesPronouns(bot))
