@@ -1,8 +1,8 @@
 # what are we validating?
 # YOU.
 
-from ..util.db import *
-from ..util.sentence_parsing import Sentence
+from euphy.util.db import *
+from euphy.util.sentence_parsing import Sentence
 
 import discord
 import discord.ext.commands as commands

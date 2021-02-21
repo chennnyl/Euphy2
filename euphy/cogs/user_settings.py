@@ -1,4 +1,4 @@
-from ..util.db import *
+from euphy.util.db import *
 
 import discord
 import discord.ext.commands as commands

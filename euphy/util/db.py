@@ -55,6 +55,22 @@ class PronounDBCursor(PostgreCursor):
         except:
             return False
         return True
+
+    def get_all_pronouns(self, **kwargs):
+        as_tuple = kwargs.get("as_tuple", False)
+
+        self.curs.execute(
+        '''
+        SELECT * FROM pronouns;
+        '''
+        )
+        try:
+            results = self.curs.fetchall()
+            if not as_tuple:
+                results = [{key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), result)} for result in results]
+            return results
+        except:
+            return False
     
     def get_pronouns(self, *pronouns,**kwargs):
 
