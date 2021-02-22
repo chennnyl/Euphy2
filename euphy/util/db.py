@@ -77,8 +77,9 @@ class PronounDBCursor(PostgreCursor):
     def get_pronouns(self, *pronouns,**kwargs):
 
         as_tuple = kwargs.get("as_tuple", False)
+        fuzzy_search = kwargs.get("fuzzy_search", False)
 
-        pronouns = [{"p": pronoun} for pronoun in pronouns]
+        pronouns = [{"p": pronoun if not fuzzy_search else f"%{pronoun}%"} for pronoun in pronouns]
 
         values = list()
         ids = list()
@@ -87,15 +88,25 @@ class PronounDBCursor(PostgreCursor):
         foundAll = True
 
         for pronoun in pronouns:
-            self.curs.execute(
-            '''
-            SELECT * FROM pronouns WHERE
-                nom=%(p)s or obj=%(p)s or poss=%(p)s or posspro=%(p)s or ref=%(p)s
-            LIMIT 1
-            ''', pronoun
-            )
+
+            if fuzzy_search:
+                query = '''
+                SELECT * FROM PRONOUNS WHERE 
+                    nom like(%(p)s) or obj like(%(p)s) or poss like(%(p)s) or posspro like(%(p)s) or ref like(%(p)s)
+                '''
+            else:
+                query = '''
+                SELECT * FROM pronouns WHERE
+                    nom=%(p)s or obj=%(p)s or poss=%(p)s or posspro=%(p)s or ref=%(p)s
+                LIMIT 1
+                '''
+
+            self.curs.execute(query, pronoun)
             try:
-                result = self.curs.fetchone()
+                if not fuzzy_search:
+                    result = self.curs.fetchone()
+                else:
+                    return self.curs.fetchall()
 
                 if not as_tuple:
                     result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), result)}
