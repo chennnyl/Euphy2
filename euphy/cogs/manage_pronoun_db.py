@@ -82,7 +82,7 @@ class PronounDBManagement(commands.Cog):
             await ctx.send("You need to tell me what to search for!")
         else:
             with PronounDBCursor() as pronoundb:
-                pronouns = pronoundb.get_pronouns(*args, as_tuple=True, fuzzy_search=True)
+                pronouns, _, _ = pronoundb.get_pronouns(*args, as_tuple=True, fuzzy_search=True)
             if not pronouns:
                 await ctx.send("I couldn't find any of those pronouns! Make sure you spelled them correctly, or add some more with `e$contribute!`")
                 return

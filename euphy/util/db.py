@@ -106,7 +106,8 @@ class PronounDBCursor(PostgreCursor):
                 if not fuzzy_search:
                     result = self.curs.fetchone()
                 else:
-                    return self.curs.fetchall()
+                    [values.append(pset) for pset in self.curs.fetchall() if not pset in values]
+                    continue
 
                 if not as_tuple:
                     result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), result)}
