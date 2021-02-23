@@ -102,12 +102,12 @@ class TryPronouns(commands.Cog):
                         "\N{REGIONAL INDICATOR SYMBOL LETTER I}",
                     ]
 
-                    header = "Looks like we have some pronouns that could refer to multiple sets! Let's work through those.\n**React with the number corresponding to the set you meant!**\n"
+                    header = "Looks like we have some pronouns that could refer to multiple sets! Let's work through those.\n**React with the letter corresponding to the set you meant!**\n"
                     msg = await ctx.send(
                         content=None,
                         embed=discord.Embed.from_dict({
                             "title": "Pronoun Conflict Resolution",
-                            "description":header + "\n".join(f"`{i+1}. {'/'.join(pset[:-1])}`" for i,pset in enumerate(conflicts[conflict]))
+                            "description":header + "\n".join(f"`{'ABCDEFGHI'[i]}. {'/'.join(pset[:-1])}`" for i,pset in enumerate(conflicts[conflict]))
                         }))
                     [await msg.add_reaction(indicators[i]) for i,_ in enumerate(conflicts[conflict])]
                     
