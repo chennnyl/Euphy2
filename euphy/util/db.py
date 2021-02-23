@@ -98,19 +98,18 @@ class PronounDBCursor(PostgreCursor):
                 query = '''
                 SELECT * FROM pronouns WHERE
                     nom=%(p)s or obj=%(p)s or poss=%(p)s or posspro=%(p)s or ref=%(p)s
-                LIMIT 1
                 '''
 
             self.curs.execute(query, pronoun)
             try:
                 if not fuzzy_search:
-                    result = self.curs.fetchone()
+                    result = self.curs.fetchall()
                 else:
                     [values.append(pset) for pset in self.curs.fetchall() if not pset in values]
                     continue
 
                 if not as_tuple:
-                    result = {key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), result)}
+                    results = [{key:val for key,val in zip(("id","nom","obj","poss","posspro","ref","plural"), pset)} for pset in result]
                 else:
                     assert bool(result)
             except:
@@ -120,9 +119,10 @@ class PronounDBCursor(PostgreCursor):
                 notFound.append(pronoun["p"])
                 continue
             if not as_tuple:
-                if result['id'] not in ids:
-                    values.append(result)
-                    ids.append(result['id'])
+                for result in results:
+                    if result['id'] not in ids:
+                        values.append(result)
+                        ids.append(result['id'])
             else:
                 if result[0] not in ids:
                     values.append(result)

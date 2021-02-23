@@ -177,8 +177,12 @@ class PronounDBManagement(commands.Cog):
                 elif len(progress) == 6 or self.confirming.get(message.author.id, False):
                     with PronounDBCursor() as pronoundb:
                         exists, _, _ = pronoundb.get_pronouns(*self.dialogue_users[message.author.id][:-1])
-                        if any(exists):
-                            await message.channel.send(f"You've duplicated some or all of a preexisting pronoun set! Conflicts with `{'/'.join([exists[0][key] for key in exists[0]][1:-1])}`")
+
+                        dtt = lambda d: tuple(d[a] for a in ["nom","obj","poss","posspro","ref"])
+
+                        duplicated = [dtt(existP) == tuple(self.dialogue_users[message.author.id][:-1]) for existP in exists]
+                        if any(duplicated):
+                            await message.channel.send("I already have that set in my database!")
                         else:
                             if pronoundb.add_pronouns(*self.dialogue_users[message.author.id]):
                                 if self.confirming.get(message.author.id, False):
