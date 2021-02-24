@@ -57,7 +57,7 @@ class PronounDBManagement(commands.Cog):
         def generate_pronoun_embed(pronoun_list, index=1, pages=1):
                 return discord.Embed.from_dict({
                     "title": "All pronouns in database",
-                    "description": "\n".join(f'`{str(page_limit*index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
+                    "description": "\n".join(f'`{str(page_limit*index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + f" (ID {pset[0]})" + '`' for i,pset in enumerate(pronoun_list)),
                     "footer": {
                         "icon_url": str(ctx.author.avatar_url),
                         "text": f"Page {1+index}/{pages} | {len(pronouns)} results | Searched by {ctx.author.name}#{ctx.author.discriminator}"
@@ -92,7 +92,7 @@ class PronounDBManagement(commands.Cog):
             def generate_pronoun_embed(pronoun_list, index=1, pages=1):
                 return discord.Embed.from_dict({
                     "title": f"Pronouns matching `{'/'.join(args)}`",
-                    "description": "\n".join(f'`{str(page_limit * index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + '`' for i,pset in enumerate(pronoun_list)),
+                    "description": "\n".join(f'`{str(page_limit * index + i+1)}. ' + '/'.join(pset[1:-1]) + (' - plural' if pset[-1] else '') + f" (ID {pset[0]})" + '`' for i,pset in enumerate(pronoun_list)),
                     "footer": {
                         "icon_url": str(ctx.author.avatar_url),
                         "text": f"Page {1+index}/{pages} | {len(pronouns)} results | Searched by {ctx.author.name}#{ctx.author.discriminator}"
