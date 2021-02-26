@@ -62,11 +62,16 @@ class TryPronouns(commands.Cog):
 
             plist = []
             psets = []
+            csets = []
             conflicts = {}
             for pset in pronouns:
                 pset = dtt(pset)
                 for pronoun in pset[:-1]:
                     if pronoun in plist:
+                        if not pset in csets:
+                            csets.append(pset)
+                            csets.append(psets[plist.index(pronoun)])
+
                         if not conflicts.get(pronoun, False):
                             conflicts[pronoun] = [pset, psets[plist.index(pronoun)]]
                         else:
@@ -74,6 +79,8 @@ class TryPronouns(commands.Cog):
                     
                     plist.append(pronoun)
                     psets.append(pset)
+                
+
             
             def unique_tuples(d, key):
                 already = []
@@ -86,6 +93,8 @@ class TryPronouns(commands.Cog):
 
             while True:
                 for conflict in conflicts:
+                    if len(csets) < 2:
+                        break
                     if len(conflicts[conflict]) > 9:
                         await ctx.send("Wow, that's a lot of conflict -- I can't handle that right now, ask Lynne about it.")
                         return
@@ -120,6 +129,7 @@ class TryPronouns(commands.Cog):
                         for cpro in [cpro for cpro in conflicts[conflict] if cpro[-1] != conflicts[conflict][indicators.index(reaction.emoji)][-1]]:
                             idToRemove = cpro[-1]
                             pronounToRemove = [p for p in pronouns if p["id"] == idToRemove][0]
+                            csets.remove(dtt(pronounToRemove))
                             pronouns.remove(pronounToRemove)
                         
 
