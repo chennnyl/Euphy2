@@ -25,7 +25,7 @@ async def on_ready():
 
 @bot.event
 async def on_command(ctx):
-    print(f"{ctx.author.name}#{ctx.author.id} just invoked {ctx.command} with the arguments {ctx.args}")
+    print(f"{ctx.author.name}#{ctx.author.discriminator} just invoked e${ctx.command}; {ctx.message}")
 
 bot.add_cog(PronounDBManagement(bot))
 bot.add_cog(ModifyNamesPronouns(bot))
